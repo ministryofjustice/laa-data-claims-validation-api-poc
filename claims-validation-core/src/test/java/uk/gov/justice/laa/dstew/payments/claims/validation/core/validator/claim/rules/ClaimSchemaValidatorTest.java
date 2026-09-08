@@ -6,6 +6,8 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
+import lombok.Getter;
+import lombok.Setter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -318,6 +320,37 @@ class ClaimSchemaValidatorTest {
   }
 
   @Nested
+  @DisplayName("fee_calculation_response schema acceptance")
+  class FeeCalculationResponseAcceptance {
+
+    @ParameterizedTest
+    @MethodSource(
+        "uk.gov.justice.laa.dstew.payments.claims.validation.core.validator.claim.rules"
+            + ".ClaimSchemaValidatorTest#feeCalculationResponseCases")
+    @DisplayName("accepts null, empty and basic values without errors or warnings")
+    void validate_feeCalculationResponse_acceptsValues(Object value) {
+      ClaimWithFeeCalculationResponse claim = new ClaimWithFeeCalculationResponse();
+      claim.setStatus(ClaimStatus.READY_TO_PROCESS);
+      claim.setLineNumber(1);
+      claim.setNetDisbursementAmount(BigDecimal.ZERO);
+      claim.setDisbursementsVatAmount(BigDecimal.ZERO);
+      claim.setFeeCode("ABC123");
+
+      // attach the test value (may be null)
+      claim.setFeeCalculationResponse(value);
+
+      validator.validate(claim, context);
+
+      // Ensure no schema validation errors and no schema configuration warnings
+      List<ValidationIssue> errors = errorIssues();
+      List<ValidationIssue> warnings = warningIssues();
+
+      assertThat(errors).isEmpty();
+      assertThat(warnings).isEmpty();
+    }
+  }
+
+  @Nested
   @DisplayName("private helper and display message helpers")
   class HelperTests {
 
@@ -446,9 +479,21 @@ class ClaimSchemaValidatorTest {
         Arguments.of(AreaOfLaw.LEGAL_HELP, 21, true));
   }
 
+  /** Test cases for fee_calculation_response acceptance. Arguments: value */
+  static Stream<Arguments> feeCalculationResponseCases() {
+    return Stream.of(Arguments.of((Object) null), Arguments.of((Object) ""), Arguments.of((Object) "basic-value"));
+  }
+
   static final class ClaimWithExtraSchemaField extends Claim {
     public Boolean getNonSchemaField() {
       return true;
     }
+  }
+
+  @Setter
+  @Getter
+  static final class ClaimWithFeeCalculationResponse extends Claim {
+    private Object feeCalculationResponse;
+
   }
 }
