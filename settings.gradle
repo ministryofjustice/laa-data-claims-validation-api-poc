@@ -13,7 +13,7 @@ pluginManagement {
     }
 
     plugins {
-        id 'uk.gov.laa.springboot.laa-spring-boot-gradle-plugin' version '2.1.0'
+        id 'uk.gov.laa.springboot.laa-spring-boot-gradle-plugin' version '2.3.7'
         id 'io.freefair.lombok' version '9.5.0'
         id 'com.diffplug.spotless' version '8.10.1'
         id 'io.sentry.jvm.gradle' version '6.20.0'
